@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="sr" data-theme="rok">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sajt za bend · demo WebGlow Studio</title>
+<meta name="description" content="Demo sajt za bendove i muzičare: rok, pop/elektro, džez i svadbeni orkestar u jednom šablonu.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Unbounded:wght@500;700;800&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ---------- teme ---------- */
+:root{
+  --body:"DM Sans", system-ui, sans-serif;
+  --max:1160px;
+  --gutter:clamp(18px,5vw,56px);
+  --radius:18px;
+}
+[data-theme="rok"]{
+  --bg:#0d0d0d; --bg2:#171515; --fg:#f2efe9; --muted:#a9a39b; --accent:#e63b2e; --accent2:#f2efe9; --on-accent:#0d0d0d;
+  --line:rgba(242,239,233,.14); --display:"Anton", Impact, sans-serif; --display-case:uppercase; --display-style:normal; --display-weight:400; --display-track:.01em;
+  --radius:4px;
+}
+[data-theme="pop"]{
+  --bg:#0b0920; --bg2:#151236; --fg:#f4f2ff; --muted:#a8a4cf; --accent:#ff3ea5; --accent2:#3ef0ff; --on-accent:#0b0920;
+  --line:rgba(244,242,255,.14); --display:"Unbounded", sans-serif; --display-case:none; --display-style:normal; --display-weight:800; --display-track:-.02em;
+  --radius:999px;
+}
+[data-theme="dzez"]{
+  --bg:#15110c; --bg2:#1f1912; --fg:#efe4d0; --muted:#b3a68f; --accent:#d4a24c; --accent2:#efe4d0; --on-accent:#15110c;
+  --line:rgba(239,228,208,.15); --display:"Playfair Display", Georgia, serif; --display-case:none; --display-style:italic; --display-weight:500; --display-track:-.01em;
+  --radius:14px;
+}
+[data-theme="svadbe"]{
+  --bg:#fbf6ee; --bg2:#f3e9da; --fg:#2b1a12; --muted:#6e584a; --accent:#a3122a; --accent2:#b8862f; --on-accent:#fff;
+  --line:rgba(43,26,18,.14); --display:"Cormorant Garamond", Georgia, serif; --display-case:none; --display-style:normal; --display-weight:700; --display-track:0;
+  --radius:12px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;overflow-x:hidden;transition:background .5s,color .5s}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
+.disp{font-family:var(--display);text-transform:var(--display-case);font-style:var(--display-style);font-weight:var(--display-weight);letter-spacing:var(--display-track);line-height:1}
+.kicker{font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+
+/* ---------- prekidač stila ---------- */
+.switcher{background:var(--fg);color:var(--bg);font-size:.85rem;transition:background .5s,color .5s}
+.switcher .wrap{display:flex;align-items:center;gap:.6rem 1rem;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
+.switcher span{opacity:.75;font-weight:500}
+.sw-list{display:flex;gap:.4rem;flex-wrap:wrap}
+.sw{border:1px solid currentColor;background:transparent;border-radius:999px;padding:.35rem .9rem;min-height:36px;cursor:pointer;font-weight:500;opacity:.7;transition:opacity .2s,background .2s,color .2s}
+.sw:hover{opacity:1}
+.sw[aria-pressed="true"]{background:var(--bg);color:var(--fg);border-color:var(--bg);opacity:1}
+
+/* ---------- header ---------- */
+header.top{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);transition:background .5s}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:1rem;height:68px}
+.brand{text-decoration:none;font-size:1.5rem}
+.nav{display:flex;gap:1.8rem;list-style:none}
+.nav a{text-decoration:none;font-size:.95rem;opacity:.8}
+.nav a:hover{opacity:1;color:var(--accent)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6rem;min-height:48px;padding:.85rem 1.5rem;border-radius:var(--radius);border:1.5px solid var(--accent);background:var(--accent);color:var(--on-accent);text-decoration:none;font-weight:700;cursor:pointer;transition:transform .2s,background .3s,color .3s,border-color .3s}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn.small{min-height:44px;padding:.6rem 1.1rem;font-size:.92rem}
+.burger{display:none;width:44px;height:44px;border:0;background:none;cursor:pointer;position:relative}
+.burger i{position:absolute;left:10px;right:10px;height:2px;background:var(--fg);transition:transform .3s,opacity .2s}
+.burger i:nth-child(1){top:15px}.burger i:nth-child(2){top:21px}.burger i:nth-child(3){top:27px}
+.menu-open .burger i:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.menu-open .burger i:nth-child(2){opacity:0}
+.menu-open .burger i:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;padding:clamp(56px,10vw,120px) 0 clamp(56px,9vw,110px)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(32px,6vw,80px);align-items:center}
+.hero h1{font-size:clamp(3.4rem,11vw,8.6rem);margin:.9rem 0 1.2rem;word-break:break-word}
+.hero .tag{font-size:clamp(1.15rem,2.2vw,1.45rem);max-width:30ch;color:var(--muted)}
+.hero .actions{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:2rem}
+.hero-meta{display:flex;gap:2.4rem;flex-wrap:wrap;margin-top:2.6rem;padding-top:1.6rem;border-top:1px solid var(--line)}
+.hero-meta b{display:block;font-family:var(--display);font-style:var(--display-style);font-weight:var(--display-weight);font-size:1.9rem;line-height:1.1;color:var(--accent)}
+.hero-meta span{font-size:.88rem;color:var(--muted)}
+
+.disc-wrap{position:relative;aspect-ratio:1;max-width:440px;width:100%;margin:0 auto}
+.glow{position:absolute;inset:-12%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 38%,transparent),transparent 65%);filter:blur(10px);opacity:.75;transition:background .5s}
+.disc{position:relative;width:100%;height:100%;animation:spin 8s linear infinite}
+.playing .disc{animation-duration:2.4s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.disc .lbl{fill:var(--accent);transition:fill .5s}
+.disc .grooves{stroke:var(--fg);opacity:.13}
+.disc .vinyl{fill:var(--bg2);transition:fill .5s}
+.disc .hole{fill:var(--bg)}
+.disc .shine{fill:var(--fg);opacity:.06}
+.eq{position:absolute;left:50%;bottom:-6%;transform:translateX(-50%);display:flex;gap:5px;align-items:flex-end;height:64px}
+.eq i{width:8px;border-radius:3px;background:var(--accent);height:10px;transition:background .5s}
+.playing .eq i{animation:eq 1s ease-in-out infinite}
+@keyframes eq{0%,100%{height:10px}50%{height:var(--h,48px)}}
+
+/* teme: posebni potezi */
+[data-theme="rok"] .hero h1{transform:skewY(-3deg);transform-origin:left}
+[data-theme="rok"] body{background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px)}
+[data-theme="pop"] .hero h1{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 22px color-mix(in srgb,var(--accent) 45%,transparent))}
+[data-theme="pop"] .glow{background:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--accent2) 45%,transparent),transparent 55%),radial-gradient(circle at 70% 70%,color-mix(in srgb,var(--accent) 50%,transparent),transparent 55%)}
+[data-theme="dzez"] .hero h1{font-size:clamp(3rem,9vw,7rem)}
+[data-theme="svadbe"] .hero{text-align:center}
+[data-theme="svadbe"] .hero-grid{grid-template-columns:1fr}
+[data-theme="svadbe"] .hero .tag{margin:0 auto}
+[data-theme="svadbe"] .hero .actions,[data-theme="svadbe"] .hero-meta{justify-content:center}
+[data-theme="svadbe"] .hero-visual{display:none}
+[data-theme="svadbe"] .ornament{display:flex}
+.ornament{display:none;align-items:center;justify-content:center;gap:1rem;color:var(--accent2)}
+.ornament i{width:70px;height:1px;background:currentColor}
+.ornament svg{width:28px;height:28px}
+[data-theme="svadbe"] .hero h1{font-size:clamp(3rem,9vw,7.4rem);color:var(--accent)}
+
+/* ---------- sekcije ---------- */
+section.sec{padding:clamp(72px,11vw,130px) 0;border-top:1px solid var(--line)}
+.sec-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:1.2rem 2rem;margin-bottom:2.6rem}
+.sec-head h2{font-size:clamp(2.4rem,6vw,4.4rem);margin-top:.6rem}
+.sec-head p{max-width:40ch;color:var(--muted)}
+.alt{background:var(--bg2);transition:background .5s}
+
+/* muzika */
+.tracks{list-style:none;border-top:1px solid var(--line)}
+.track{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:1rem;align-items:center;padding:1rem 0;border-bottom:1px solid var(--line);position:relative}
+.track .play{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;transition:background .2s,border-color .2s,color .2s}
+.track .play:hover{border-color:var(--accent);color:var(--accent)}
+.track .play svg{width:18px;height:18px}
+.track.on .play{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.track .t{font-weight:700;font-size:1.08rem}
+.track .s{font-size:.88rem;color:var(--muted)}
+.track .d{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.92rem}
+.track .bar{position:absolute;left:0;bottom:-1px;height:2px;background:var(--accent);width:0}
+.demo-note{margin-top:1rem;font-size:.85rem;color:var(--muted)}
+.listen{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:2rem}
+
+/* nastupi */
+.gigs{list-style:none;display:grid;gap:12px}
+.gig{display:grid;grid-template-columns:90px minmax(0,1fr) auto;gap:1.2rem;align-items:center;padding:1.2rem 1.4rem;border:1px solid var(--line);border-radius:var(--radius);transition:border-color .2s,transform .2s}
+[data-theme="pop"] .gig{border-radius:24px}
+.gig:hover{border-color:var(--accent);transform:translateX(4px)}
+.gig .date{text-align:center;line-height:1}
+.gig .date b{display:block;font-family:var(--display);font-weight:var(--display-weight);font-style:var(--display-style);font-size:2.2rem;color:var(--accent)}
+.gig .date span{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.gig .where b{display:block;font-size:1.08rem}
+.gig .where span{font-size:.9rem;color:var(--muted)}
+.gig .status{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .7rem;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.gig .status.hot{border-color:var(--accent);color:var(--accent)}
+
+/* o bendu */
+.about-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,6vw,80px);align-items:start}
+.about-text p{color:var(--muted);margin-bottom:1rem;max-width:52ch}
+.about-text blockquote{font-family:var(--display);font-style:var(--display-style);font-weight:var(--display-weight);text-transform:var(--display-case);font-size:clamp(1.6rem,3.4vw,2.4rem);line-height:1.15;margin-bottom:1.6rem}
+.members{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.member{border:1px solid var(--line);border-radius:var(--radius);padding:1.2rem;display:flex;align-items:center;gap:.9rem}
+[data-theme="pop"] .member{border-radius:24px}
+.member .av{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);font-family:var(--display);font-weight:var(--display-weight);font-style:var(--display-style);font-size:1.3rem}
+.member b{display:block;line-height:1.25}
+.member span{font-size:.88rem;color:var(--muted)}
+
+/* booking */
+.book-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,6vw,80px);align-items:start}
+.book-grid aside p{color:var(--muted);margin-top:1rem;max-width:38ch}
+.perks{list-style:none;margin-top:1.6rem;display:grid;gap:.7rem}
+.perks li{display:flex;gap:.7rem;align-items:flex-start}
+.perks li::before{content:"";flex:none;width:10px;height:10px;margin-top:.5rem;border-radius:2px;background:var(--accent);transform:rotate(45deg)}
+form.bk{border:1px solid var(--line);background:color-mix(in srgb,var(--fg) 4%,transparent);border-radius:calc(var(--radius) + 8px);padding:clamp(22px,4vw,40px);display:grid;gap:1.1rem}
+[data-theme="pop"] form.bk{border-radius:32px}
+.field{display:grid;gap:.4rem}
+.field label{font-size:.9rem;font-weight:500}
+.field input,.field select,.field textarea{width:100%;min-height:50px;padding:.8rem 1rem;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg)}
+.field textarea{min-height:110px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.err{color:var(--accent);font-size:.9rem;min-height:1.2em}
+.sent{display:none;text-align:center;padding:2rem 0}
+.sent h3{font-family:var(--display);font-style:var(--display-style);font-weight:var(--display-weight);text-transform:var(--display-case);font-size:2rem;line-height:1.1}
+.sent p{color:var(--muted);margin:.6rem auto 1.4rem;max-width:34ch}
+form.bk.done>*:not(.sent){display:none}
+form.bk.done .sent{display:block}
+
+/* footer */
+footer{padding:clamp(56px,8vw,90px) 0 40px;border-top:1px solid var(--line)}
+.foot-big{font-size:clamp(3rem,13vw,10rem);color:var(--accent);word-break:break-word}
+.foot-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1.5rem 2rem;margin-top:2.4rem;padding-top:1.6rem;border-top:1px solid var(--line);font-size:.92rem;color:var(--muted)}
+.socials{display:flex;gap:.6rem;flex-wrap:wrap}
+.socials a{display:inline-flex;align-items:center;gap:.5rem;min-height:44px;padding:.5rem 1rem;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--fg)}
+.socials a:hover{border-color:var(--accent);color:var(--accent)}
+.socials svg{width:18px;height:18px}
+.credit a{color:var(--accent)}
+
+.rv{opacity:0;transform:translateY(22px);transition:opacity .8s,transform .8s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+
+@media (max-width:900px){
+  .nav,.top .btn{display:none}
+  .burger{display:block}
+  .nav{position:fixed;inset:calc(68px + var(--sw-h,52px)) 0 auto 0;flex-direction:column;gap:0;background:var(--bg);padding:.5rem var(--gutter) 1.5rem;border-bottom:1px solid var(--line)}
+  .menu-open .nav{display:flex}
+  .nav a{display:block;padding:.9rem 0;font-size:1.2rem;border-bottom:1px solid var(--line)}
+  .hero-grid,.about-grid,.book-grid{grid-template-columns:1fr}
+  .hero-visual{max-width:300px;margin:0 auto;order:-1}
+  .gig{grid-template-columns:70px minmax(0,1fr)}
+  .gig .status{grid-column:2;justify-self:start}
+}
+@media (max-width:520px){
+  .two{grid-template-columns:1fr}
+  .members{grid-template-columns:1fr}
+  .hero .actions .btn{flex:1 1 100%}
+  .switcher span{width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="switcher" id="switcher">
+  <div class="wrap">
+    <span>Demo · izaberi stil benda:</span>
+    <div class="sw-list" role="group" aria-label="Stil sajta">
+      <button class="sw" type="button" data-t="rok" aria-pressed="true">Rok</button>
+      <button class="sw" type="button" data-t="pop" aria-pressed="false">Pop / elektro</button>
+      <button class="sw" type="button" data-t="dzez" aria-pressed="false">Džez</button>
+      <button class="sw" type="button" data-t="svadbe" aria-pressed="false">Svadbeni orkestar</button>
+    </div>
+  </div>
+</div>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand disp" href="#" data-k="name">Crni Talas</a>
+    <ul class="nav" id="nav">
+      <li><a href="#muzika" data-k="navMusic">Muzika</a></li>
+      <li><a href="#nastupi" data-k="navGigs">Nastupi</a></li>
+      <li><a href="#bend" data-k="navAbout">O bendu</a></li>
+      <li><a href="#booking">Booking</a></li>
+    </ul>
+    <a class="btn small" href="#booking" data-k="cta">Zakaži nastup</a>
+    <button class="burger" id="burger" type="button" aria-label="Otvori meni" aria-expanded="false" aria-controls="nav"><i></i><i></i><i></i></button>
+  </div>
+</header>
+
+<main>
+<section class="hero" id="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="ornament" aria-hidden="true"><i></i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 3l2.2 5.3L20 9l-4.4 3.8L17 18.5 12 15.6 7 18.5l1.4-5.7L4 9l5.8-.7z"/></svg><i></i></div>
+      <p class="kicker" data-k="kicker">Rok bend · Beograd</p>
+      <h1 class="disp" data-k="name">Crni Talas</h1>
+      <p class="tag" data-k="tagline">Glasno. Iskreno. Uživo.</p>
+      <div class="actions">
+        <button class="btn" type="button" id="heroPlay"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg><span data-k="listen">Slušaj novi singl</span></button>
+        <a class="btn ghost" href="#booking" data-k="cta">Zakaži nastup</a>
+      </div>
+      <div class="hero-meta">
+        <div><b data-k="m1">120+</b><span data-k="m1l">koncerata</span></div>
+        <div><b data-k="m2">2</b><span data-k="m2l">albuma</span></div>
+        <div><b data-k="m3">2015.</b><span data-k="m3l">sviramo od</span></div>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="disc-wrap" id="discWrap">
+        <div class="glow"></div>
+        <svg class="disc" viewBox="0 0 200 200">
+          <circle class="vinyl" cx="100" cy="100" r="98"/>
+          <g class="grooves" fill="none" stroke-width=".6">
+            <circle cx="100" cy="100" r="90"/><circle cx="100" cy="100" r="82"/><circle cx="100" cy="100" r="74"/><circle cx="100" cy="100" r="66"/><circle cx="100" cy="100" r="58"/><circle cx="100" cy="100" r="50"/>
+          </g>
+          <path class="shine" d="M100 2a98 98 0 0 1 69 28L100 100z"/>
+          <circle class="lbl" cx="100" cy="100" r="36"/>
+          <circle class="hole" cx="100" cy="100" r="4"/>
+        </svg>
+        <div class="eq" id="eq"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="muzika" aria-labelledby="mz-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="kicker" data-k="musicKicker">Novi album</p><h2 class="disp" id="mz-h" data-k="musicTitle">Pesme</h2></div>
+      <p data-k="musicText">Slušajte najnovije pesme, pa nas uhvatite uživo.</p>
+    </div>
+    <ul class="tracks" id="tracks"></ul>
+    <p class="demo-note">Demo prikaz: dugme pokreće animaciju, a na pravom sajtu ovde idu pesme sa Spotify-a ili YouTube-a.</p>
+    <div class="listen">
+      <a class="btn ghost small" href="#">Spotify</a>
+      <a class="btn ghost small" href="#">YouTube</a>
+      <a class="btn ghost small" href="#">Apple Music</a>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="nastupi" aria-labelledby="ns-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="kicker" data-k="gigsKicker">Uživo</p><h2 class="disp" id="ns-h" data-k="gigsTitle">Nastupi</h2></div>
+      <p data-k="gigsText">Gde nas sledeće možete čuti.</p>
+    </div>
+    <ul class="gigs" id="gigs"></ul>
+  </div>
+</section>
+
+<section class="sec alt" id="bend" aria-labelledby="bd-h">
+  <div class="wrap about-grid">
+    <div class="about-text rv">
+      <p class="kicker" data-k="navAbout">O bendu</p>
+      <h2 class="disp" id="bd-h" style="font-size:clamp(2.4rem,6vw,4.4rem);margin:.6rem 0 1.6rem" data-k="aboutTitle">Ko smo mi</h2>
+      <blockquote data-k="quote">„Svaka svirka je kao prva.”</blockquote>
+      <p data-k="about1">Tekst o bendu.</p>
+      <p data-k="about2">Još teksta o bendu.</p>
+    </div>
+    <ul class="members rv" id="members"></ul>
+  </div>
+</section>
+
+<section class="sec" id="booking" aria-labelledby="bk-h">
+  <div class="wrap book-grid">
+    <aside>
+      <p class="kicker">Booking</p>
+      <h2 class="disp" id="bk-h" style="font-size:clamp(2.4rem,6vw,4.4rem);margin-top:.6rem" data-k="bookTitle">Zakažite nastup</h2>
+      <p data-k="bookText">Pošaljite upit i javljamo se u roku od 24 sata.</p>
+      <ul class="perks" id="perks"></ul>
+    </aside>
+    <form class="bk" id="bk" novalidate>
+      <div class="two">
+        <div class="field"><label for="f-name">Ime i prezime</label><input id="f-name" autocomplete="name" required></div>
+        <div class="field"><label for="f-tel">Telefon</label><input id="f-tel" type="tel" autocomplete="tel" inputmode="tel" required></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="f-date">Datum</label><input id="f-date" type="date"></div>
+        <div class="field"><label for="f-type" data-k="typeLabel">Vrsta događaja</label><select id="f-type"></select></div>
+      </div>
+      <div class="field"><label for="f-place">Mesto i grad</label><input id="f-place" placeholder="npr. klub, sala ili restoran"></div>
+      <div class="field"><label for="f-msg">Poruka (opciono)</label><textarea id="f-msg" placeholder="Broj gostiju, trajanje, posebne želje…"></textarea></div>
+      <p class="err" id="err" role="alert"></p>
+      <button class="btn" type="submit" data-k="send">Pošalji upit</button>
+      <div class="sent" aria-live="polite">
+        <h3 data-k="sentTitle">Hvala!</h3>
+        <p>Ovo je demo, pa upit nije poslat. Na pravom sajtu stiže bendu na mejl ili telefon.</p>
+        <button class="btn ghost" type="button" id="again">Novi upit</button>
+      </div>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-big disp" aria-hidden="true" data-k="name">Crni Talas</div>
+    <div class="foot-row">
+      <div class="socials">
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".8" fill="currentColor"/></svg>Instagram</a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor"/></svg>YouTube</a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M7 9.5c3.5-1 7-.6 10 1M7.5 12.8c3-.8 6-.4 8.5.9M8 15.8c2.4-.6 4.6-.3 6.6.7"/></svg>Spotify</a>
+      </div>
+      <div><span data-k="footLine">booking@imebenda.rs</span> · © 2026</div>
+      <div class="credit">Demo sajt: <a href="https://www.instagram.com/elizabetdarcy/">WebGlow Studio</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const T = {
+  rok:{
+    name:'Crni Talas', kicker:'Rok bend · Beograd', tagline:'Glasno. Iskreno. Uživo.', listen:'Slušaj novi singl', cta:'Zakaži nastup',
+    navMusic:'Muzika', navGigs:'Nastupi', navAbout:'O bendu',
+    m1:'120+', m1l:'koncerata', m2:'2', m2l:'albuma', m3:'2015.', m3l:'sviramo od',
+    musicKicker:'Novi album „Senke grada”', musicTitle:'Pesme', musicText:'Gitare do daske i tekstovi koji se pevaju iz grla. Pustite glasnije.',
+    gigsKicker:'Turneja 2026/27', gigsTitle:'Nastupi', gigsText:'Klubovi, festivali i podrumi. Dođite ranije, mesta se brzo popune.',
+    aboutTitle:'Četiri drugara i jedna buka', quote:'„Svaka svirka je kao prva, i kao poslednja.”',
+    about1:'Crni Talas je nastao u garaži na Dorćolu, iz ljubavi prema starom domaćem roku i želje da zvuči glasnije od komšijine bušilice.',
+    about2:'Danas sviramo po klubovima i festivalima širom regiona, a posle svakog koncerta ostajemo da pričamo sa publikom.',
+    bookTitle:'Zakažite nastup', bookText:'Klub, festival ili privatna žurka. Pošaljite upit i javljamo se u roku od 24 sata.',
+    typeLabel:'Vrsta događaja', send:'Pošalji upit', sentTitle:'Upit je primljen!', footLine:'booking@crnitalas.rs',
+    types:['Koncert u klubu','Festival','Privatna žurka','Korporativni događaj','Drugo'],
+    perks:['Sopstveno ozvučenje za manje prostore','Set od 60 do 120 minuta','Autorske pesme i rok klasici'],
+    tracks:[['Senke grada','Singl · 2026','3:48'],['Asfalt','Album „Senke grada”','4:12'],['Bez povratka','Album „Senke grada”','3:31'],['Noćni autobus','Album „Senke grada”','5:02'],['Garaža 2015','Prvi album','2:57']],
+    gigs:[['14','dec','Klub Podrum','Beograd · 21h','Poslednje karte',1],['28','dec','Novogodišnji rok maraton','Novi Sad · 20h','Karte u prodaji',0],['17','jan','Dom kulture','Kragujevac · 21h','Karte u prodaji',0],['07','feb','Klub Fabrika','Niš · 22h','Uskoro',0]],
+    members:[['Luka','vokal i gitara'],['Marko','gitara'],['Nina','bas'],['Stefan','bubanj']]
+  },
+  pop:{
+    name:'Neonski Grad', kicker:'Pop / elektro duo · Novi Sad', tagline:'Ritam koji ne spava.', listen:'Pusti novi singl', cta:'Rezerviši nastup',
+    navMusic:'Muzika', navGigs:'Nastupi', navAbout:'O nama',
+    m1:'5M+', m1l:'strimova', m2:'40+', m2l:'festivala i klubova', m3:'2019.', m3l:'zajedno od',
+    musicKicker:'Novi EP „Ponoćni signal”', musicTitle:'Pesme', musicText:'Sintisajzeri, bas koji se oseća u grudima i refreni koji ostaju u glavi.',
+    gigsKicker:'Live 2026/27', gigsTitle:'Nastupi', gigsText:'Svaki nastup je svetlosni šou. Ponesite dobro raspoloženje, mi nosimo lasere.',
+    aboutTitle:'Dvoje ljudi, hiljadu zvukova', quote:'„Pravimo muziku za ponoć i za prvi sunčev zrak.”',
+    about1:'Neonski Grad su Ana i Vuk, producentkinja i pevač koji su se upoznali na žurci gde je nestalo struje, pa su nastavili da prave muziku na baterije.',
+    about2:'Njihove pesme se vrte na radiju i plejlistama, a uživo kombinuju živi vokal, sintisajzere i vizuale napravljene za svaki grad.',
+    bookTitle:'Rezervišite nastup', bookText:'Klub, festival ili brend događaj. Pošaljite upit i dobijate ponudu sa tehničkim zahtevima.',
+    typeLabel:'Vrsta događaja', send:'Pošalji upit', sentTitle:'Signal primljen!', footLine:'booking@neonskigrad.rs',
+    types:['Klub','Festival','Brend događaj / lansiranje','Privatna žurka','Drugo'],
+    perks:['Live set ili DJ set po izboru','Vizuali i svetlo prilagođeni prostoru','Tehnički rider šaljemo uz ponudu'],
+    tracks:[['Ponoćni signal','Singl · 2026','3:24'],['Neon u očima','EP „Ponoćni signal”','3:05'],['Brzina svetla','EP „Ponoćni signal”','3:47'],['Plavi sat','EP „Ponoćni signal”','4:10'],['Bez struje','Prvi singl','2:58']],
+    gigs:[['13','dec','Klub Lift','Novi Sad · 23h','Rasprodato',1],['31','dec','Doček na trgu','Subotica · 22h','Besplatan ulaz',0],['24','jan','Klub Drugstore','Beograd · 23h','Karte u prodaji',0],['14','feb','Dan zaljubljenih live','Zagreb · 22h','Uskoro',0]],
+    members:[['Ana','produkcija i sintisajzeri'],['Vuk','vokal i tekstovi'],['Iva','vizuali (live)'],['Đorđe','bubanj (live)']]
+  },
+  dzez:{
+    name:'Plava Nota Trio', kicker:'Džez trio · Beograd', tagline:'Džez za duge večeri i dobre razgovore.', listen:'Poslušaj snimak', cta:'Rezervišite trio',
+    navMusic:'Repertoar', navGigs:'Večeri', navAbout:'O triju',
+    m1:'300+', m1l:'večeri u klubovima', m2:'3', m2l:'muzičara', m3:'2012.', m3l:'sviramo od',
+    musicKicker:'Album „Kasno posle kiše”', musicTitle:'Repertoar', musicText:'Standardi, bosa nova i autorske kompozicije. Tiho dovoljno za razgovor, lepo dovoljno da se zaćuti.',
+    gigsKicker:'Uživo', gigsTitle:'Džez večeri', gigsText:'Redovne večeri u klubovima i hotelskim barovima. Rezervacija stola se preporučuje.',
+    aboutTitle:'Klavir, kontrabas, bubanj', quote:'„Najlepši ton je onaj koji odsviramo između nota.”',
+    about1:'Plava Nota Trio svira zajedno više od decenije, od malih klubova do hotelskih lobija i venčanja u krugu najbližih.',
+    about2:'Repertoar prilagođavamo prostoru i publici: od mekog bekgraunda za večeru do večeri u kojoj se sluša svaki solo.',
+    bookTitle:'Rezervišite trio', bookText:'Večera, prijem, venčanje ili hotelski bar. Pošaljite upit i predložićemo repertoar.',
+    typeLabel:'Prilika', send:'Pošalji upit', sentTitle:'Hvala na upitu', footLine:'kontakt@plavanota.rs',
+    types:['Večera ili prijem','Venčanje','Hotelski bar / restoran','Korporativni događaj','Drugo'],
+    perks:['Duo, trio ili kvartet sa vokalom','Akustičan zvuk, prilagođen prostoru','Repertoar po vašoj želji'],
+    tracks:[['Kasno posle kiše','Autorska · 2026','5:41'],['Autumn Leaves','Standard','6:12'],['Blue Bossa','Standard','4:55'],['Dorćolski valcer','Autorska','4:20'],['Misty','Standard','5:03']],
+    gigs:[['11','dec','Hotelski lobi bar','Beograd · 20h','Svakog četvrtka',1],['19','dec','Džez klub Kej','Beograd · 21h','Rezervacija stola',0],['09','jan','Zimski džez vikend','Zlatibor · 20h','Karte u prodaji',0],['30','jan','Gradska kafana','Novi Sad · 21h','Uskoro',0]],
+    members:[['Mila','klavir'],['Bojan','kontrabas'],['Dejan','bubanj'],['Sara','vokal (gost)']]
+  },
+  svadbe:{
+    name:'Orkestar Zlatni Dukat', kicker:'Muzika za svadbe i proslave', tagline:'Muzika za najlepše dane u vašem životu.', listen:'Poslušajte nas', cta:'Proverite termin',
+    navMusic:'Repertoar', navGigs:'Termini', navAbout:'O orkestru',
+    m1:'500+', m1l:'svadbi i proslava', m2:'6', m2l:'muzičara', m3:'2008.', m3l:'sviramo od',
+    musicKicker:'Repertoar', musicTitle:'Šta sviramo', musicText:'Narodna, starogradska, zabavna i strana muzika. Od prvog plesa do poslednjeg kola.',
+    gigsKicker:'Kalendar', gigsTitle:'Slobodni termini', gigsText:'Najtraženiji datumi se rezervišu i godinu dana unapred. Proverite da li je vaš slobodan.',
+    aboutTitle:'Orkestar koji diže svadbu na noge', quote:'„Kad zasvira truba, ne ostaje niko da sedi.”',
+    about1:'Orkestar Zlatni Dukat svira na svadbama, krštenjima, rođendanima i slavama širom Srbije, sa repertoarom za sve generacije.',
+    about2:'Pre svake svadbe dogovaramo se sa mladencima oko prvog plesa, pesama za goste i trenutaka koji ne smeju da se propuste.',
+    bookTitle:'Proverite slobodan termin', bookText:'Upišite datum i mesto proslave, a mi vam javljamo da li smo slobodni i šaljemo ponudu.',
+    typeLabel:'Proslava', send:'Proveri termin', sentTitle:'Hvala, čestitamo!', footLine:'zlatnidukat@gmail.com',
+    types:['Svadba','Krštenje','Rođendan / jubilej','Slava','Drugo'],
+    perks:['Pevač, pevačica i duvačka sekcija','Sopstveno ozvučenje i svetlo','Dogovor oko prvog plesa i liste pesama'],
+    tracks:[['Prvi ples','Po izboru mladenaca','3:30'],['Kolo za mladence','Narodno','4:05'],['Starogradski splet','Starogradska','8:20'],['Zabavni hitovi','Splet za sve generacije','10:00'],['Truba za kraj','Duvački splet','6:15']],
+    gigs:[['13','dec','Subota','Popunjen termin','Zauzeto',0],['27','dec','Subota','Još jedan termin u Beogradu','Slobodno',1],['10','jan','Subota','Centralna Srbija','Slobodno',1],['14','feb','Subota','Sva mesta','Proverite',0]],
+    members:[['Dragan','harmonika i vođa'],['Jelena','vokal'],['Milan','vokal i gitara'],['Nikola','truba']]
+  }
+};
+
+const root = document.documentElement;
+const swBtns = document.querySelectorAll('.sw');
+let current = 'rok';
+
+function setTheme(key){
+  const d = T[key]; if(!d) return;
+  current = key;
+  root.setAttribute('data-theme', key);
+  swBtns.forEach(b => b.setAttribute('aria-pressed', b.dataset.t === key));
+  document.querySelectorAll('[data-k]').forEach(el => { const v = d[el.dataset.k]; if(v !== undefined) el.textContent = v; });
+  document.title = d.name + ' · demo sajt za bend';
+  renderTracks(d); renderGigs(d); renderMembers(d); renderPerks(d); renderTypes(d);
+  stopAll();
+  try{ localStorage.setItem('bend-tema', key); }catch(e){}
+}
+
+/* ---------- pesme ---------- */
+const tracksEl = document.getElementById('tracks');
+let timer = null, active = -1, prog = 0;
+const playIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>';
+const pauseIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+function renderTracks(d){
+  tracksEl.innerHTML = d.tracks.map(([t,s,dur],i) => `
+    <li class="track" data-i="${i}">
+      <button class="play" type="button" aria-label="Pusti: ${t}">${playIcon}</button>
+      <div><div class="t">${t}</div><div class="s">${s}</div></div>
+      <div class="d">${dur}</div>
+      <span class="bar" aria-hidden="true"></span>
+    </li>`).join('');
+  tracksEl.querySelectorAll('.play').forEach(b => b.addEventListener('click', () => toggle(+b.closest('.track').dataset.i)));
+}
+function toggle(i){
+  if(active === i){ stopAll(); return; }
+  stopAll();
+  active = i; prog = 0;
+  const li = tracksEl.children[i]; li.classList.add('on');
+  const b = li.querySelector('.play'); b.innerHTML = pauseIcon; b.setAttribute('aria-label','Pauza: ' + T[current].tracks[i][0]);
+  document.body.classList.add('playing');
+  timer = setInterval(() => {
+    prog += 0.6; li.querySelector('.bar').style.width = Math.min(prog,100) + '%';
+    if(prog >= 100){ const next = (i+1) % tracksEl.children.length; toggle(next); }
+  }, 120);
+}
+function stopAll(){
+  clearInterval(timer); timer = null;
+  [...tracksEl.children].forEach((li,j) => {
+    li.classList.remove('on'); li.querySelector('.bar').style.width = '0';
+    const b = li.querySelector('.play'); b.innerHTML = playIcon; b.setAttribute('aria-label','Pusti: ' + T[current].tracks[j][0]);
+  });
+  active = -1; document.body.classList.remove('playing');
+}
+document.getElementById('heroPlay').addEventListener('click', () => {
+  document.getElementById('muzika').scrollIntoView({behavior: reduce ? 'auto' : 'smooth'});
+  if(active < 0) toggle(0);
+});
+
+/* ---------- ekvilajzer ---------- */
+const eq = document.getElementById('eq');
+for(let i=0;i<14;i++){
+  const h = 18 + ((i*37) % 46);
+  eq.insertAdjacentHTML('beforeend', `<i style="--h:${h}px;animation-delay:${(i*0.07).toFixed(2)}s;animation-duration:${(0.7 + ((i*13)%6)/10).toFixed(1)}s"></i>`);
+}
+
+/* ---------- nastupi, članovi, booking ---------- */
+function renderGigs(d){
+  document.getElementById('gigs').innerHTML = d.gigs.map(([day,mon,place,info,status,hot]) => `
+    <li class="gig rv in">
+      <div class="date"><b>${day}</b><span>${mon}</span></div>
+      <div class="where"><b>${place}</b><span>${info}</span></div>
+      <span class="status${hot ? ' hot' : ''}">${status}</span>
+    </li>`).join('');
+}
+function renderMembers(d){
+  document.getElementById('members').innerHTML = d.members.map(([n,r]) => `
+    <li class="member"><span class="av" aria-hidden="true">${n[0]}</span><div><b>${n}</b><span>${r}</span></div></li>`).join('');
+}
+function renderPerks(d){
+  document.getElementById('perks').innerHTML = d.perks.map(p => `<li>${p}</li>`).join('');
+}
+function renderTypes(d){
+  document.getElementById('f-type').innerHTML = d.types.map(t => `<option>${t}</option>`).join('');
+}
+
+const form = document.getElementById('bk'), err = document.getElementById('err');
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const name = document.getElementById('f-name').value.trim(), tel = document.getElementById('f-tel').value.trim();
+  if(!name){ err.textContent = 'Upišite ime da znamo kome se javljamo.'; document.getElementById('f-name').focus(); return; }
+  if(tel.replace(/\D/g,'').length < 8){ err.textContent = 'Upišite broj telefona sa najmanje 8 cifara.'; document.getElementById('f-tel').focus(); return; }
+  err.textContent = ''; form.classList.add('done');
+});
+document.getElementById('again').addEventListener('click', () => { form.reset(); form.classList.remove('done'); });
+
+/* ---------- meni ---------- */
+const burger = document.getElementById('burger');
+function setSwH(){ root.style.setProperty('--sw-h', document.getElementById('switcher').offsetHeight + 'px'); }
+setSwH(); addEventListener('resize', setSwH);
+burger.addEventListener('click', () => {
+  const open = document.body.classList.toggle('menu-open');
+  burger.setAttribute('aria-expanded', open);
+  burger.setAttribute('aria-label', open ? 'Zatvori meni' : 'Otvori meni');
+});
+document.querySelectorAll('#nav a').forEach(a => a.addEventListener('click', () => {
+  document.body.classList.remove('menu-open'); burger.setAttribute('aria-expanded', false);
+}));
+
+/* ---------- prekidač ---------- */
+swBtns.forEach(b => b.addEventListener('click', () => setTheme(b.dataset.t)));
+let saved = 'rok'; try{ saved = localStorage.getItem('bend-tema') || 'rok'; }catch(e){}
+setTheme(T[saved] ? saved : 'rok');
+
+/* ---------- reveal ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold:.12});
+document.querySelectorAll('.rv').forEach(el => io.observe(el));
+})();
+</script>
+</body>
+</html>
